@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração de Filmes</title>
+    <link rel="stylesheet" href="./SRC/css/admin-style.css">
+    <script src="https://kit.fontawesome.com/9256129f72.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            Administração de Filmes
+        </div>
+    </header>
+    <main>
+        <section class="add-movie">
+            <h2>Adicionar Novo Filme</h2>
+            <form id="add-movie-form">
+                <label for="title">Título:</label>
+                <input type="text" id="title" name="title" required>
+                
+                <label for="description">Descrição:</label>
+                <textarea id="description" name="description" required></textarea>
+                
+                <label for="logo">URL do Logo:</label>
+                <input type="url" id="logo" name="logo" required>
+                
+                <label for="video">URL do Vídeo:</label>
+                <input type="url" id="video" name="video" required>
+                
+                <button type="submit">Adicionar Filme</button>
+            </form>
+        </section>
+        <section class="movie-list">
+            <h2>Lista de Filmes</h2>
+            <div id="movie-list-container">
+                <!-- Filmes serão listados aqui -->
+            </div>
+        </section>
+    </main>
+  
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>

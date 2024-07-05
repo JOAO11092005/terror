@@ -1,0 +1,26 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const movieContainer = document.getElementById('movie-container');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    searchButton.addEventListener('click', function() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+
+        // Seleciona todos os filmes
+        const filmes = movieContainer.querySelectorAll('.filme');
+
+        filmes.forEach(filme => {
+            const title = filme.dataset.title.toLowerCase();
+
+            // Verifica se o título do filme corresponde ao termo de pesquisa
+            if (title.includes(searchTerm)) {
+                filme.style.display = 'block'; // Exibe o filme correspondente
+            } else {
+                filme.style.display = 'none'; // Oculta os filmes que não correspondem
+            }
+        });
+
+        // Limpa o campo de pesquisa
+        searchInput.value = '';
+    });
+});
