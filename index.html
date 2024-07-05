@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +9,6 @@
     <link rel="stylesheet" href="./SRC/css/aparelhos.css">
     <script src="https://kit.fontawesome.com/9256129f72.js" crossorigin="anonymous"></script>
 </head>
-
 <body>
     <header>
         <a href="index.html">
@@ -34,9 +32,142 @@
             <p>&copy; 2024 JPCINE. Todos os direitos reservados.</p>
         </div>
     </footer>
-    <script src="./SRC/js/adblock.js"></script>
-    <script src="./SRC/js/pesquisa"></script>
-    <script src="./SRC/js/index.js"></script>
-</body>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2U69m-BT92vckB_wzziSJB9F8cCB0YBo",
+            authDomain: "filme-terror.firebaseapp.com",
+            databaseURL: "https://filme-terror-default-rtdb.firebaseio.com",
+            projectId: "filme-terror",
+            storageBucket: "filme-terror.appspot.com",
+            messagingSenderId: "700657136479",
+            appId: "1:700657136479:web:6c42f535edd24bd25f7cea"
+        };
 
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referência ao Realtime Database
+        const database = firebase.database();
+
+        // Função para carregar os filmes do banco de dados
+        async function loadFilmes() {
+            try {
+                const snapshot = await database.ref('filmes').once('value');
+                return snapshot.val();
+            } catch (error) {
+                console.error('Erro ao carregar filmes:', error);
+                throw error;
+            }
+        }
+
+        // Função para exibir os filmes na página inicial
+        async function exibirFilmes() {
+            try {
+                const filmes = await loadFilmes();
+                const movieContainer = document.getElementById('movie-container');
+
+                for (const key in filmes) {
+                    if (Object.hasOwnProperty.call(filmes, key)) {
+                        const filme = filmes[key];
+                        const filmeElement = document.createElement('div');
+                        filmeElement.classList.add('filme');
+
+                        const logoImg = document.createElement('img');
+                        logoImg.src = filme.logo;
+                        logoImg.alt = filme.titulo;
+
+                        const tituloElement = document.createElement('h3');
+                        tituloElement.textContent = filme.titulo;
+
+                        const descricaoElement = document.createElement('p');
+                        descricaoElement.textContent = filme.descricao;
+
+                        // Adiciona um evento de clique para redirecionar para player.html com os detalhes do filme
+                        filmeElement.addEventListener('click', function() {
+                            sessionStorage.setItem('filmeSelecionado', JSON.stringify(filme));
+                            window.location.href = './player.html';
+                        });
+
+                        filmeElement.appendChild(logoImg);
+                        filmeElement.appendChild(tituloElement);
+                        filmeElement.appendChild(descricaoElement);
+
+                        movieContainer.appendChild(filmeElement);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao exibir filmes:', error);
+            }
+        }
+
+        // Função para pesquisar filmes
+        async function pesquisarFilmes() {
+            const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            const movieContainer = document.getElementById('movie-container');
+            const loadingElement = document.createElement('div');
+            loadingElement.classList.add('loading');
+            loadingElement.innerHTML = '<div class="loading-circle"></div><p class="p-loading">Carregando filmes...</p>';
+            movieContainer.innerHTML = '';
+            movieContainer.appendChild(loadingElement);
+
+            try {
+                // Simulando um atraso de 6 segundos para o efeito de loading
+                await new Promise(resolve => setTimeout(resolve, 6000));
+
+                const filmes = await loadFilmes();
+                const filmesFiltrados = Object.values(filmes).filter(filme =>
+                    filme.titulo.toLowerCase().includes(searchInput)
+                );
+
+                movieContainer.innerHTML = '';
+
+                if (filmesFiltrados.length > 0) {
+                    filmesFiltrados.forEach(filme => {
+                        const filmeElement = document.createElement('div');
+                        filmeElement.classList.add('filme');
+
+                        const logoImg = document.createElement('img');
+                        logoImg.src = filme.logo;
+                        logoImg.alt = filme.titulo;
+
+                        const tituloElement = document.createElement('h3');
+                        tituloElement.textContent = filme.titulo;
+
+                        const descricaoElement = document.createElement('p');
+                        descricaoElement.textContent = filme.descricao;
+
+                        // Adiciona um evento de clique para redirecionar para player.html com os detalhes do filme
+                        filmeElement.addEventListener('click', function() {
+                            sessionStorage.setItem('filmeSelecionado', JSON.stringify(filme));
+                            window.location.href = './player.html';
+                        });
+
+                        filmeElement.appendChild(logoImg);
+                        filmeElement.appendChild(tituloElement);
+                        filmeElement.appendChild(descricaoElement);
+
+                        movieContainer.appendChild(filmeElement);
+                    });
+                } else {
+                    const mensagemElement = document.createElement('p');
+                    mensagemElement.textContent = 'Nenhum filme encontrado.';
+                    movieContainer.appendChild(mensagemElement);
+                }
+            } catch (error) {
+                console.error('Erro ao pesquisar filmes:', error);
+            }
+        }
+
+        // Carrega e exibe os filmes ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            exibirFilmes();
+
+            // Adiciona um listener para o input de pesquisa
+            document.getElementById('searchInput').addEventListener('input', pesquisarFilmes);
+        });
+    </script>
+</body>
 </html>
