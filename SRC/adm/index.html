@@ -6,6 +6,43 @@
     <title>Administração de Filmes</title>
     <link rel="stylesheet" href="./SRC/css/admin-style.css">
     <script src="https://kit.fontawesome.com/9256129f72.js" crossorigin="anonymous"></script>
+    <style>
+        /* Estilos para o modal */
+        .modal {
+            display: none; /* Esconder o modal por padrão */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -20,12 +57,6 @@
                 <label for="title">Título:</label>
                 <input type="text" id="title" name="title" required>
                 
-                <label for="description">Descrição:</label>
-                <textarea id="description" name="description" required></textarea>
-                
-                <label for="logo">URL do Logo:</label>
-                <input type="url" id="logo" name="logo" required>
-                
                 <label for="video">URL do Vídeo:</label>
                 <input type="url" id="video" name="video" required>
                 
@@ -39,114 +70,22 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal para editar o link do filme -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editar Link do Filme</h2>
+            <form id="edit-movie-form">
+                <label for="edit-video">Novo URL do Vídeo:</label>
+                <input type="url" id="edit-video" name="edit-video" required>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
   
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-    <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyC2U69m-BT92vckB_wzziSJB9F8cCB0YBo",
-            authDomain: "filme-terror.firebaseapp.com",
-            databaseURL: "https://filme-terror-default-rtdb.firebaseio.com",
-            projectId: "filme-terror",
-            storageBucket: "filme-terror.appspot.com",
-            messagingSenderId: "700657136479",
-            appId: "1:700657136479:web:6c42f535edd24bd25f7cea"
-        };
-
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Referência ao Realtime Database
-        const database = firebase.database();
-
-        // Função para carregar os filmes
-        async function loadFilmes() {
-            try {
-                const snapshot = await database.ref('filmes').once('value');
-                return snapshot.val();
-            } catch (error) {
-                console.error('Erro ao carregar filmes:', error);
-                throw error;
-            }
-        }
-
-        // Função para adicionar um filme
-        async function adicionarFilme(novoFilme) {
-            try {
-                await database.ref('filmes').push().set(novoFilme);
-                console.log('Filme adicionado com sucesso!');
-                carregarListaFilmes();
-            } catch (error) {
-                console.error('Erro ao adicionar filme:', error);
-                throw error;
-            }
-        }
-
-        // Função para carregar e exibir a lista de filmes
-        async function carregarListaFilmes() {
-            try {
-                const filmes = await loadFilmes();
-                const filmesContainer = document.getElementById('movie-list-container');
-                filmesContainer.innerHTML = ''; // Limpa o conteúdo atual da lista
-
-                for (const key in filmes) {
-                    if (Object.hasOwnProperty.call(filmes, key)) {
-                        const filme = filmes[key];
-                        const filmeElement = document.createElement('div');
-                        filmeElement.classList.add('movie-item');
-
-                        const logoImg = document.createElement('img');
-                        logoImg.src = filme.logo;
-                        logoImg.alt = filme.titulo;
-
-                        const tituloElement = document.createElement('h3');
-                        tituloElement.textContent = filme.titulo;
-
-                        const descricaoElement = document.createElement('p');
-                        descricaoElement.textContent = filme.descricao;
-
-                        filmeElement.appendChild(logoImg);
-                        filmeElement.appendChild(tituloElement);
-                        filmeElement.appendChild(descricaoElement);
-
-                        filmesContainer.appendChild(filmeElement);
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao carregar lista de filmes:', error);
-            }
-        }
-
-        // Captura o evento de submissão do formulário
-        const addMovieForm = document.getElementById('add-movie-form');
-        addMovieForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const title = document.getElementById('title').value;
-            const description = document.getElementById('description').value;
-            const logo = document.getElementById('logo').value;
-            const video = document.getElementById('video').value;
-
-            // Cria um objeto com os dados do novo filme
-            const novoFilme = {
-                titulo: title,
-                descricao: description,
-                logo: logo,
-                video: video
-            };
-
-            // Adiciona o novo filme
-            adicionarFilme(novoFilme);
-
-            // Limpa o formulário após adicionar o filme
-            addMovieForm.reset();
-        });
-
-        // Carrega a lista de filmes ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            carregarListaFilmes();
-        });
-    </script>
+    <script src="./index.js"></script>
 </body>
 </html>

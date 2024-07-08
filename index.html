@@ -8,8 +8,39 @@
     <link rel="stylesheet" href="./SRC/css/style.css">
     <link rel="stylesheet" href="./SRC/css/aparelhos.css">
     <script src="https://kit.fontawesome.com/9256129f72.js" crossorigin="anonymous"></script>
+    <style>
+        .adblock-message {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: red;
+            color: white;
+            text-align: center;
+            z-index: 1000;
+        }
+        .adblock-message a {
+            color: yellow;
+            text-decoration: underline;
+        }
+        .adblock-message button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <div id="adblock-message" class="adblock-message">
+        <span>Por favor, instale um AdBlock para evitar anúncios durante a navegação. Disponível na <a href="https://chrome.google.com/webstore/" target="_blank">Web Store</a> ou na <a href="https://play.google.com/store" target="_blank">Play Store</a>.</span>
+        <button id="close-adblock-message">&times;</button>
+    </div>
     <header>
         <a href="index.html">
             <div class="logo"></div>
@@ -167,7 +198,15 @@
 
             // Adiciona um listener para o input de pesquisa
             document.getElementById('searchInput').addEventListener('input', pesquisarFilmes);
+
+            // Adiciona um listener para fechar a mensagem de adblock
+            document.getElementById('close-adblock-message').addEventListener('click', function() {
+                document.getElementById('adblock-message').style.display = 'none';
+            });
         });
+
+
+
     </script>
 </body>
 </html>
