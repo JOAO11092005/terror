@@ -12,7 +12,7 @@ const firebaseConfig = {
 // Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Referência ao Realtime Database
+// Referências do Realtime Database
 const database = firebase.database();
 
 // Função para buscar detalhes do filme na API do TMDb
@@ -165,7 +165,7 @@ async function editarFilme(key, newVideoURL) {
     }
 }
 
-// Captura o evento de submissão do formulário
+// Captura o evento de submissão do formulário de adicionar filme
 const addMovieForm = document.getElementById('add-movie-form');
 addMovieForm.addEventListener('submit', function(event) {
     event.preventDefault();
@@ -184,3 +184,171 @@ addMovieForm.addEventListener('submit', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     carregarListaFilmes();
 });
+
+// Função para carregar os pedidos de filmes pendentes
+async function loadPedidos() {
+    try {
+        const snapshot = await database.ref('pedidos').once('value');
+        const pedidos = snapshot.val();
+        displayPedidos(pedidos);
+    } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+    }
+}
+
+// Função para exibir os pedidos na página de administração
+function displayPedidos(pedidos) {
+    const movieRequestsContainer = document.getElementById('movie-requests-container');
+    movieRequestsContainer.innerHTML = '';
+
+    if (pedidos) {
+        Object.keys(pedidos).forEach(key => {
+            const pedido = pedidos[key];
+            const pedidoElement = document.createElement('div');
+            pedidoElement.classList.add('pedido');
+
+            const filmeElement = document.createElement('p');
+            filmeElement.textContent = `Filme: ${pedido.filme}`;
+
+            const statusElement = document.createElement('p');
+            statusElement.textContent = `Status: ${pedido.status}`;
+
+            const removerButton = document.createElement('button');
+            removerButton.textContent = 'Remover';
+            removerButton.addEventListener('click', () => removerPedido(key));
+
+            pedidoElement.appendChild(filmeElement);
+            pedidoElement.appendChild(statusElement);
+            pedidoElement.appendChild(removerButton);
+
+            movieRequestsContainer.appendChild(pedidoElement);
+        });
+    } else {
+        const mensagemElement = document.createElement('p');
+        mensagemElement.textContent = 'Não há pedidos pendentes.';
+        movieRequestsContainer.appendChild(mensagemElement);
+    }
+}
+
+// Função para remover pedido de filme
+function removerPedido(key) {
+    if (confirm('Tem certeza que deseja remover este pedido?')) {
+        database.ref(`pedidos/${key}`).remove()
+            .then(() => {
+                mostrarMensagem('Pedido removido com sucesso!');
+            })
+            .catch(error => {
+                console.error('Erro ao remover pedido:', error);
+            });
+    }
+}
+
+// Função para exibir mensagem na tela
+function mostrarMensagem(mensagem) {
+    const mensagemElement = document.createElement('div');
+    mensagemElement.classList.add('mensagem');
+    mensagemElement.textContent = mensagem;
+
+    document.body.appendChild(mensagemElement);
+
+    setTimeout(() => {
+        mensagemElement.remove();
+    }, 3000); // Remove a mensagem após 3 segundos
+}
+
+// Carregar pedidos ao carregar a página de administração
+window.onload = function() {
+    loadPedidos();
+};
+
+// Função para carregar os erros de filmes reportados
+async function loadErrosFilmes() {
+    try {
+        const snapshot = await database.ref('erros').once('value');
+        const erros = snapshot.val();
+        displayErrosFilmes(erros);
+    } catch (error) {
+        console.error('Erro ao carregar erros de filmes:', error);
+    }
+}
+
+// Função para exibir os erros de filmes na página de administração
+function displayErrosFilmes(erros) {
+    const errosContainer = document.getElementById('erros');
+    errosContainer.innerHTML = '';
+
+    if (erros) {
+        Object.keys(erros).forEach(key => {
+            const erro = erros[key];
+            const erroElement = document.createElement('div');
+            erroElement.classList.add('erro');
+
+            const filmeElement = document.createElement('p');
+            filmeElement.textContent = `Filme: ${erro.filme}`;
+
+            const descricaoElement = document.createElement('p');
+            descricaoElement.textContent = `Descrição do Erro: ${erro.descricao}`;
+
+            const removerButton = document.createElement('button');
+            removerButton.textContent = 'Remover';
+            removerButton.addEventListener('click', () => removerErro(key));
+
+            erroElement.appendChild(filmeElement);
+            erroElement.appendChild(descricaoElement);
+            erroElement.appendChild(removerButton);
+
+            errosContainer.appendChild(erroElement);
+        });
+    } else {
+        const mensagemElement = document.createElement('p');
+        mensagemElement.textContent = 'Não há erros reportados.';
+        errosContainer.appendChild(mensagemElement);
+    }
+}
+
+// Função para remover um erro de filme
+async function removerErro(key) {
+    if (confirm('Tem certeza que deseja remover este erro?')) {
+        try {
+            await database.ref(`erros/${key}`).remove();
+            console.log('Erro removido com sucesso!');
+            loadErrosFilmes();
+        } catch (error) {
+            console.error('Erro ao remover erro:', error);
+        }
+    }
+}
+
+// Captura o evento de submissão do formulário de adicionar erro de filme
+const addErrorForm = document.getElementById('add-error-form');
+addErrorForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const movieName = document.getElementById('movie-name').value;
+    const errorDescription = document.getElementById('error-description').value;
+
+    // Adiciona o erro de filme
+    adicionarErroFilme(movieName, errorDescription);
+
+    // Limpa o formulário após adicionar o erro de filme
+    addErrorForm.reset();
+});
+
+// Função para adicionar um erro de filme
+async function adicionarErroFilme(movieName, errorDescription) {
+    try {
+        await database.ref('erros').push().set({
+            filme: movieName,
+            descricao: errorDescription
+        });
+        console.log('Erro de filme adicionado com sucesso!');
+        loadErrosFilmes();
+    } catch (error) {
+        console.error('Erro ao adicionar erro de filme:', error);
+    }
+}
+
+// Carregar os erros de filmes ao carregar a página
+window.onload = function() {
+    loadErrosFilmes();
+};

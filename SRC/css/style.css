@@ -54,8 +54,27 @@ header > .pesquisar > .lupa:HOVER{
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    overflow-y: auto;
     background-color: #001;
-    /* height: 100vh; */
+    height: 766px;
+}
+@media (max-width: 1400px){
+    #movie-container{
+        height: 445px;
+    }
+    .filme{
+        width: 200px;
+        max-width: 200px;
+    }
+    .filme img{
+        width: 250px;
+        max-width: 280px;
+        max-height: 400px;
+        
+    }
+    .filme img:hover{
+        box-shadow: 5px 10px 50px 5px red;
+    }
 }
 .filme{
     width: 300px;
@@ -71,6 +90,7 @@ header > .pesquisar > .lupa:HOVER{
 .filme img:hover{
     border: 1px solid white;
     transition: 0.7s ease-in-out;
+    box-shadow: 5px 10px 50px 5px red;
 }
 .filme h3{
     display: none;
@@ -83,8 +103,10 @@ header > .pesquisar > .lupa:HOVER{
     background-color: #1c1c1c;
     color: #ffffff;
     text-align: center;
-    padding: 20px 0;
+    padding: 10px 0;
     width: 100%;
+    position: absolute;
+    bottom: 0;
     font-family: 'Creepster', cursive;
     margin-top: auto; /* Garante que o footer fique no final da página */
 }
@@ -175,4 +197,33 @@ header > .pesquisar > .lupa:HOVER{
     to {
         transform: rotate(360deg); /* Rotação completa */
     }
+}
+p{
+    color: white;
+}
+#pedido{
+    width: 300px;
+    padding: 2px;
+    border: none;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+#botaopedido{
+    width: 100px;
+    padding: 1px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color: white;
+    color: #001;
+    font-size: 14px;
+}
+#confirmacaoModal{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: red;
+    padding: 20px;
+    border-radius: 20px;
+    display: none;
 }

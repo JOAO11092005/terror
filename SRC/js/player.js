@@ -30,21 +30,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 iframeElement.msRequestFullscreen();
             }
         });
+
+        // Adicionar evento ao botão de enviar erro do filme
+        const enviarErroButton = document.getElementById('enviarErro');
+        enviarErroButton.addEventListener('click', function() {
+            enviarErro(filme);
+        });
+
     } else {
         // Caso não haja filme selecionado, redireciona de volta para index.html
         window.location.href = './index.html';
     }
 });
-document.addEventListener('DOMContentLoaded', function() {
-    // Seleciona o elemento iframe
-    const iframeElement = document.querySelector('iframe');
 
-    // Reproduz o vídeo quando a página carrega
-    iframeElement.addEventListener('load', function() {
-        // Inicia a reprodução do vídeo
-        iframeElement.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        
-        // Ativa o modo de tela cheia após o vídeo iniciar
-        iframeElement.contentWindow.postMessage('{"event":"command","func":"fullscreen","args":""}', '*');
+// Função para enviar erro específico do filme ao Firebase
+function enviarErro(filme) {
+    const errosRef = firebase.database().ref('erros');
+
+    errosRef.push({
+        filmeId: filme.id,
+        titulo: filme.titulo,
+        mensagem: 'Ocorreu um erro neste filme. Por favor, verifique.'
+    }).then(() => {
+        // Mostrar mensagem de sucesso
+        mostrarMensagem('Erro enviado com sucesso para o administrador.');
+
+        // Limpar sessionStorage do filme selecionado após enviar o erro
+        sessionStorage.removeItem('filmeSelecionado');
+    }).catch(error => {
+        console.error('Erro ao enviar erro:', error);
     });
-});
+}
+
+// Função para exibir mensagem na tela
+function mostrarMensagem(mensagem) {
+    const mensagemElement = document.createElement('div');
+    mensagemElement.classList.add('mensagem');
+    mensagemElement.textContent = mensagem;
+
+    document.body.appendChild(mensagemElement);
+
+    setTimeout(() => {
+        mensagemElement.remove();
+    }, 3000); // Remove a mensagem após 3 segundos
+}

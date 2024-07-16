@@ -14,10 +14,16 @@
 <body>
     <div class="opcoes">
         <a href="./index.html"><i class="fa-solid fa-arrow-left"></i></a>
-        <h1>Nome do filme</h1>
+        <h1 id="movie-title">Nome do filme</h1>
+        <!-- <button id="enviarErro">Enviar erro</button> -->
+        <div id="mensagemEnviado" style="display: none;">Enviado!</div>
     </div>
     <iframe id="movie-player" src="" frameborder="0" allowfullscreen></iframe>
-    <footer></footer>
+    
+    <!-- Carregar Firebase SDK de forma tradicional -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="./SRC/js/player.js"></script>
+    <script src="./SRC/js/player-erro.js"></script>
 </body>
 </html>

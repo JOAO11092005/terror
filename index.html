@@ -14,14 +14,17 @@
             justify-content: space-between;
             align-items: center;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 500px;
+            height: 300px;
             padding: 10px;
             background-color: red;
             color: white;
             text-align: center;
             z-index: 1000;
+            font-size: 20px;
         }
         .adblock-message a {
             color: yellow;
@@ -31,14 +34,36 @@
             background: none;
             border: none;
             color: white;
-            font-size: 20px;
+            font-size: 40px;
             cursor: pointer;
+            top: 0;
+            right: 10px;
+            position: absolute;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .loading-circle {
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div id="adblock-message" class="adblock-message">
-        <span>Por favor, instale um AdBlock para evitar anúncios durante a navegação. Disponível na <a href="https://chrome.google.com/webstore/" target="_blank">Web Store</a> ou na <a href="https://play.google.com/store" target="_blank">Play Store</a>.</span>
+        <span>Por favor, instale um AdBlock para evitar anúncios durante a navegação. Disponível na <a href="https://chromewebstore.google.com/detail/gighmmpiobklfepjocnamgkkbiglidom" target="_blank">Web Store</a> ou na <a href="https://play.google.com/store/apps/details?id=org.adblockplus.browser" target="_blank">Play Store</a>.</span>
         <button id="close-adblock-message">&times;</button>
     </div>
     <header>
@@ -51,162 +76,32 @@
         </div>
     </header>
     <main>
-        <div id="movie-container">
-            <!-- Os filmes de terror serão exibidos aqui -->
+        <div id="movie-container"></div>
+        <div class="loading" id="loading">
+            <div class="loading-circle"></div>
         </div>
     </main>
     <footer class="footer">
         <div class="container">
+            <h4>Não encontrou o seu filme? Faça o seu pedido!!</h4>
             <div class="social-media">
-                <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                <input type="text" id="pedido">
+                <button id="botaopedido">Enviar</button>
             </div>
             <p>&copy; 2024 JPCINE. Todos os direitos reservados.</p>
         </div>
     </footer>
+    <div id="confirmacaoModal" class="modal">
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span> -->
+            <h2>Pedido Enviado com Sucesso!</h2>
+            <p>O seu pedido foi enviado com sucesso. Obrigado!</p>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-    <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyC2U69m-BT92vckB_wzziSJB9F8cCB0YBo",
-            authDomain: "filme-terror.firebaseapp.com",
-            databaseURL: "https://filme-terror-default-rtdb.firebaseio.com",
-            projectId: "filme-terror",
-            storageBucket: "filme-terror.appspot.com",
-            messagingSenderId: "700657136479",
-            appId: "1:700657136479:web:6c42f535edd24bd25f7cea"
-        };
-
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Referência ao Realtime Database
-        const database = firebase.database();
-
-        // Função para carregar os filmes do banco de dados
-        async function loadFilmes() {
-            try {
-                const snapshot = await database.ref('filmes').once('value');
-                return snapshot.val();
-            } catch (error) {
-                console.error('Erro ao carregar filmes:', error);
-                throw error;
-            }
-        }
-
-        // Função para exibir os filmes na página inicial
-        async function exibirFilmes() {
-            try {
-                const filmes = await loadFilmes();
-                const movieContainer = document.getElementById('movie-container');
-
-                for (const key in filmes) {
-                    if (Object.hasOwnProperty.call(filmes, key)) {
-                        const filme = filmes[key];
-                        const filmeElement = document.createElement('div');
-                        filmeElement.classList.add('filme');
-
-                        const logoImg = document.createElement('img');
-                        logoImg.src = filme.logo;
-                        logoImg.alt = filme.titulo;
-
-                        const tituloElement = document.createElement('h3');
-                        tituloElement.textContent = filme.titulo;
-
-                        const descricaoElement = document.createElement('p');
-                        descricaoElement.textContent = filme.descricao;
-
-                        // Adiciona um evento de clique para redirecionar para player.html com os detalhes do filme
-                        filmeElement.addEventListener('click', function() {
-                            sessionStorage.setItem('filmeSelecionado', JSON.stringify(filme));
-                            window.location.href = './player.html';
-                        });
-
-                        filmeElement.appendChild(logoImg);
-                        filmeElement.appendChild(tituloElement);
-                        filmeElement.appendChild(descricaoElement);
-
-                        movieContainer.appendChild(filmeElement);
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao exibir filmes:', error);
-            }
-        }
-
-        // Função para pesquisar filmes
-        async function pesquisarFilmes() {
-            const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
-            const movieContainer = document.getElementById('movie-container');
-            const loadingElement = document.createElement('div');
-            loadingElement.classList.add('loading');
-            loadingElement.innerHTML = '<div class="loading-circle"></div><p class="p-loading">Carregando filmes...</p>';
-            movieContainer.innerHTML = '';
-            movieContainer.appendChild(loadingElement);
-
-            try {
-                // Simulando um atraso de 6 segundos para o efeito de loading
-                await new Promise(resolve => setTimeout(resolve, 6000));
-
-                const filmes = await loadFilmes();
-                const filmesFiltrados = Object.values(filmes).filter(filme =>
-                    filme.titulo.toLowerCase().includes(searchInput)
-                );
-
-                movieContainer.innerHTML = '';
-
-                if (filmesFiltrados.length > 0) {
-                    filmesFiltrados.forEach(filme => {
-                        const filmeElement = document.createElement('div');
-                        filmeElement.classList.add('filme');
-
-                        const logoImg = document.createElement('img');
-                        logoImg.src = filme.logo;
-                        logoImg.alt = filme.titulo;
-
-                        const tituloElement = document.createElement('h3');
-                        tituloElement.textContent = filme.titulo;
-
-                        const descricaoElement = document.createElement('p');
-                        descricaoElement.textContent = filme.descricao;
-
-                        // Adiciona um evento de clique para redirecionar para player.html com os detalhes do filme
-                        filmeElement.addEventListener('click', function() {
-                            sessionStorage.setItem('filmeSelecionado', JSON.stringify(filme));
-                            window.location.href = './player.html';
-                        });
-
-                        filmeElement.appendChild(logoImg);
-                        filmeElement.appendChild(tituloElement);
-                        filmeElement.appendChild(descricaoElement);
-
-                        movieContainer.appendChild(filmeElement);
-                    });
-                } else {
-                    const mensagemElement = document.createElement('p');
-                    mensagemElement.textContent = 'Nenhum filme encontrado.';
-                    movieContainer.appendChild(mensagemElement);
-                }
-            } catch (error) {
-                console.error('Erro ao pesquisar filmes:', error);
-            }
-        }
-
-        // Carrega e exibe os filmes ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            exibirFilmes();
-
-            // Adiciona um listener para o input de pesquisa
-            document.getElementById('searchInput').addEventListener('input', pesquisarFilmes);
-
-            // Adiciona um listener para fechar a mensagem de adblock
-            document.getElementById('close-adblock-message').addEventListener('click', function() {
-                document.getElementById('adblock-message').style.display = 'none';
-            });
-        });
-
-
-
-    </script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="./SRC/js/index.js"></script>
 </body>
 </html>
